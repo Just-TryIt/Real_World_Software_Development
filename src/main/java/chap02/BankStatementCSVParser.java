@@ -1,39 +1,31 @@
 package chap02;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 public class BankStatementCSVParser {
-private static final String RESOURCES = "src/main/resources/";
+	// 파싱 로직을 추출해 하나의 클래스로 만듦
+	private static final DateTimeFormatter DATE_PATTERN
+	= DateTimeFormatter.ofPattern("dd-mm-yyyy");
 	
-	public static void main(final String...args) throws IOException{
+	private BankTransaction parseFormCSV(final String line) {
+		final String[] columns =line.split(",");
 		
-		final Path path = Paths.get(RESOURCES + "bank-data-simple.csv");
-		final List<String> lines = Files.readAllLines(path);
-		double total=0d;
+		final LocalDate date = LocalDate.parse(columns[0], DATE_PATTERN);
+		final double amount = 0;
+		final String description = null;
 		
-		final DateTimeFormatter DATE_PATTERN = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-		System.out.println("DATE_PATTERN의 값 :"+DATE_PATTERN);
-		// DATE_PATTERN의 결과가 Value(DayOfMonth,2)'-'Value(MonthOfYear,2)'-'Value(YearOfEra,4,19,EXCEEDS_PAD)
-		// 로 출력되는데 이해가 안된다
-		
-		for(final String line: lines) {
-			final String[] columns = line.split(",");
-			final LocalDate date =LocalDate.parse(columns[0], DATE_PATTERN);
-			System.out.println("date의 값 :"+ date);
-			
-			if(date.getMonth()==Month.JANUARY) {
-				final double amount = Double.parseDouble(columns[1]);
-				total+=amount;
-			}
-		}
-		System.out.println("The total for all transactions in January is "+total);
-		
+		return new BankTransaction(date, amount, description);
 	}
+	
+	public List<BankTransaction> parsLinesFormCSV(final List<String> lines){
+		final List<BankTransaction> bankTransactions = new ArrayList<>();
+		for(final String line:lines) {
+			bankTransactions.add(parseFormCSV(line));
+		}
+		return bankTransactions;
+	}
+
 }
